@@ -71,7 +71,6 @@ public class Coordinator : MonoBehaviour {
 
 			//TODO: Add main level clips.
 
-
 		} else {
 			Tutorial ();
 		}
@@ -109,6 +108,7 @@ public class Coordinator : MonoBehaviour {
 		return timeLeft;
 	}
 
+	//Plays the intro clip.
 	private void PlayIntro(){
 		source.clip = introTutorialSound;
 		source.Play ();
@@ -126,6 +126,15 @@ public class Coordinator : MonoBehaviour {
 		source.Play ();
 	}
 
+	//Plays the clip for current level
+	private void PlayCurrentClip(){
+		source.Play ();
+	}
 
+	//Plays the clip for level X 
+	public void PlayClipForLevelX(int i){
+		source.clip = levels [i - 1];
+		source.Play ();
+	}
 
 }
