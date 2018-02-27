@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 public class Coordinator : MonoBehaviour {
-
-
 
     public AudioClip introTutorialSound;
     [Space]
@@ -14,21 +13,31 @@ public class Coordinator : MonoBehaviour {
     [Space]
     public AudioClip [] levels;
     
-
-	private bool tutorialDone = false;
+	//TODO: Check tutorial done after finishing script
+	private bool tutorialDone = true;
 	private GameObject gameMaster;
     private AudioSource source;
 	private string sceneName = null;
 
 	private int frameCounter;
 	private const int FRAME_COUNTER = 13;
+	private const float CLIP_SKIP = 0.1f;
 	private int level;
+	private bool changeClip = false;
 
 
+	#region FrameCheckerTemp
+	/*
+		frameCounter++;
 
-
-
-
+		if(frameCounter >= FRAME_COUNTER) {
+			if (timeLeftOnCurrentClip() <= 1) {
+				
+				frameCounter = 0;
+			}
+		} 
+	 */
+	#endregion
 
 
 
@@ -36,6 +45,7 @@ public class Coordinator : MonoBehaviour {
 	void Awake(){
 		frameCounter = 0;
 		level = 0;
+
 
 		//Gets AudioSource in current GameObject(Coordinator)
 		source = GetComponent<AudioSource> ();
@@ -55,6 +65,8 @@ public class Coordinator : MonoBehaviour {
 
 		//TODO: After writing GameMaster script, get level index from gameMaster
 
+		//FIXME: Remove this 
+		UpdateClip();
 
 		if (gameMaster == null) {
 			throw new System.Exception ("Couldn't find a GameMaster at Coordinator");
@@ -65,27 +77,42 @@ public class Coordinator : MonoBehaviour {
 
 	}
 	
-	// Update is called once per frame
+	//TODO: Tutorial clips arent synchronized
 	void Update () {
+
+		Debug.Log ("Coordinator Current Level -> " + level);
+
+
 		if (tutorialDone) {
 
-			//TODO: Add main level clips.
+			//Every 13rd frame, compare Coordinator Current Level and GameMaster Current Level, 
+			//if they're different and Coordinator isn't playing anything, get ready to change the current clip
+			frameCounter++;
+			if(frameCounter >= FRAME_COUNTER) {
+				if (level != gameMaster.GetComponent<GameMaster>().GetCurrentLevelIndex() && !source.isPlaying ) {
+					changeClip = true;
+				}
+			frameCounter = 0;
+			} 
+
+			//Change current level and update the current clip
+			if (changeClip) {
+				SetCurrentLevel (gameMaster.GetComponent<GameMaster> ().GetCurrentLevelIndex ());
+				UpdateClip ();
+				changeClip = false;
+			}
 
 		} else {
 			Tutorial ();
 		}
 	}
 
-	/*
-		frameCounter++;
-
-		if(frameCounter >= FRAME_COUNTER) {
-			if (timeLeftOnCurrentClip() <= 1) {
-				
-				frameCounter = 0;
-			}
-		} 
-	 */
+	void OnMouseDown(){
+		//If coordiantor isn't speaking at the moment and coordinator is clicked, PlayCurrentClip
+		if (!source.isPlaying) {
+			PlayCurrentClip ();
+		}
+	}
 
 	private void Tutorial(){
 		frameCounter++;
@@ -116,14 +143,18 @@ public class Coordinator : MonoBehaviour {
 
 	// Plays the Succesfull Answer clip
 	public void PlaySuccess(){
-		source.clip = trueAnswer;
-		source.Play ();
+		if (!source.isPlaying) {
+			source.clip = trueAnswer;
+			source.Play ();
+		}
 	}
 
 	// Plays the Wrong Answer clip
 	public void PlayFail(){
-		source.clip = falseAnswer;
-		source.Play ();
+		if (!source.isPlaying) {
+			source.clip = falseAnswer;
+			source.Play ();
+		}
 	}
 
 	//Plays the clip for current level
@@ -137,4 +168,12 @@ public class Coordinator : MonoBehaviour {
 		source.Play ();
 	}
 
+	//Sets current level
+	public void SetCurrentLevel(int i){
+		level = i;
+	}
+		
+	private void UpdateClip(){
+		source.clip = levels [level];
+	}
 }
