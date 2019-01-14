@@ -7,41 +7,43 @@ using UnityEngine.EventSystems;
 // Forces GameObject to have a BoxCollides2D component
 // In other words, Button script requires the GameObject to have a BoxCollider2D component
 [RequireComponent(typeof(BoxCollider2D))]
-public class Button : MonoBehaviour {
-	
-	//GameMaster script component
-	private GameMaster gm;
+public class Button : MonoBehaviour
+{
 
-	void Start () {
-	
-		//Gets GameMaster script component in GameMaster GameObject
-		gm = GameObject.FindGameObjectWithTag ("GameMaster").GetComponent<GameMaster>();
+    //GameMaster script component
+    private GameMaster gm;
 
+    void Start()
+    {
 
-		if (gm == null) {
-			throw new System.Exception ("Couldn't find GameMaster script at Button");
-		}
-	}
+        //Gets GameMaster script component in GameMaster GameObject
+        gm = GameObject.FindGameObjectWithTag("GameMaster").GetComponent<GameMaster>();
 
 
-	// ON Mouse Click this function runs
-	void OnMouseDown(){
+        if (gm == null)
+        {
+            throw new System.Exception("Couldn't find GameMaster script at Button");
+        }
+    }
 
-		// if theres anything between this object and mouse cursor, skip this script
 
-		/*if (EventSystem.current.IsPointerOverGameObject ())
-			return;
-		*/
+    // ON Mouse Click this function runs
+    void OnMouseDown()
+    {
+        // Calls the correct checker function in GameMaster
+        if (gameObject.tag == "Button1")
+        {
+            gm.Button1Pressed();
+        }
+        else if (gameObject.tag == "Button2")
+        {
+            gm.Button2Pressed();
+        }
+        else
+        {
+            gm.Button3Pressed();
+        }
 
-		// Calls the correct checker function in GameMaster
-		if (gameObject.tag == "Button1") {
-			gm.Button1Pressed ();
-		} else if (gameObject.tag == "Button2") {
-			gm.Button2Pressed ();
-		} else {
-			gm.Button3Pressed ();
-		}
-
-	}
+    }
 
 }
